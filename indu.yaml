@@ -1,0 +1,18 @@
+application_port: kfkf
+build_command: mnvmvm
+deploy_env: nmnvm
+deploy_env_dev: nmvv
+deploy_env_prod: ' nmm'
+deploy_port: ',jvv'
+deploy_servers_dev: nmvmvm
+deploy_servers_prod: 'nmmn '
+enabled: 'on'
+job_type: value2
+name: indu
+pvt_deploy_servers_dev: ',vnmv'
+pvt_deploy_servers_prod: nvmnm
+repo_url: enoiew
+run_command: jhff
+src_path: ',v,v,'
+ssh_port_dev: mvmvm
+ssh_port_prod: mvmvm
