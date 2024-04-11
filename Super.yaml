@@ -6,12 +6,12 @@ deploy_env_prod: ''
 deploy_port: ''
 deploy_servers_dev: ''
 deploy_servers_prod: ''
-enabled: null
-job_type: value1
-name: v
+enabled: 'on'
+job_type: value3
+name: Super
 pvt_deploy_servers_dev: ''
 pvt_deploy_servers_prod: ''
-repo_url: ''
+repo_url: https://euwfbeiw.git
 run_command: ''
 src_path: ''
 ssh_port_dev: ''

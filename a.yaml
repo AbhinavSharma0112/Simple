@@ -8,7 +8,7 @@ deploy_servers_dev: ''
 deploy_servers_prod: ''
 enabled: null
 job_type: value1
-name: indu
+name: a
 pvt_deploy_servers_dev: ''
 pvt_deploy_servers_prod: ''
 repo_url: ''

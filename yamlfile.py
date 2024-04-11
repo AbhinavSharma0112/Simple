@@ -1,7 +1,6 @@
-# import yaml
+import os
 from flask import Flask, request, redirect, render_template
 from github import Github
-import os
 import subprocess
 import urllib.parse
 import oyaml as yaml
@@ -73,8 +72,13 @@ def get_user_input():
         escaped_repo_name = urllib.parse.quote(repo_name, safe='')  # Escape repository name
         escaped_name = urllib.parse.quote(name, safe='')
 
+        # Extract repository name from the URL
+        repo_url_parts = urllib.parse.urlparse(repo_url)
+        repo_path_parts = repo_url_parts.path.split("/")
+        repo_name_from_url = repo_path_parts[-1].split('.')[0] if repo_path_parts[-1] else repo_path_parts[-2].split('.')[0]
+
         # Construct the directory path
-        directory_path = os.path.join(repo_path, 'pipelines', 'SoftwareMathematics', escaped_company_name, escaped_repo_name)
+        directory_path = os.path.join(repo_path, 'pipelines', 'SoftwareMathematics', escaped_company_name, repo_name_from_url)
 
         # Ensure the directory exists, creating if necessary
         os.makedirs(directory_path, exist_ok=True)
@@ -93,7 +97,7 @@ def get_user_input():
                 content = file.read()
 
             # Construct the dynamic_repo_path
-            dynamic_repo_path = f"pipelines/SoftwareMathematics/{escaped_company_name}/{escaped_repo_name}/{file_name}"
+            dynamic_repo_path = f"pipelines/SoftwareMathematics/{escaped_company_name}/{repo_name_from_url}/{file_name}"
 
             repo.create_file(dynamic_repo_path, f"Create {file_name}", content, branch="yaml_file_create")
 
@@ -111,8 +115,6 @@ def get_user_input():
             error_message = str(e)
             print("An error occurred while uploading file to GitHub:", str(e))
             return "Error occurred while uploading file to GitHub. Please check logs for details."
-
-
 
 
 @app.route('/')
