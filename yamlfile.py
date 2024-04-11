@@ -1,4 +1,5 @@
 import os
+import time
 from flask import Flask, request, redirect, render_template
 from github import Github
 import subprocess
@@ -20,6 +21,12 @@ try:
 
 except Exception as e:
     print("An error occurred:", e)
+
+
+def check_rate_limit(response):
+    remaining = int(response.headers.get('X-RateLimit-Remaining', 0))
+    reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
+    return remaining, reset_time
 
 
 @app.route('/add', methods=['POST'])
@@ -99,7 +106,7 @@ def get_user_input():
             # Construct the dynamic_repo_path
             dynamic_repo_path = f"pipelines/SoftwareMathematics/{escaped_company_name}/{repo_name_from_url}/{file_name}"
 
-            repo.create_file(dynamic_repo_path, f"Create {file_name}", content, branch="yaml_file_create")
+            response = repo.create_file(dynamic_repo_path, f"Create {file_name}", content, branch="yaml_file_create")
 
             git_cmd_add = ["git", "add", file_path]
             subprocess.run(git_cmd_add)
@@ -109,6 +116,13 @@ def get_user_input():
 
             git_cmd_push = ["git", "push", "origin", "yaml_file_create"]
             subprocess.run(git_cmd_push)
+
+            # Check rate limit after each request
+            remaining, reset_time = check_rate_limit(response)
+            if remaining == 0:
+                # Rate limit exceeded, wait until reset_time
+                sleep_time = reset_time - time.time() + 10  # Add 10 seconds buffer
+                time.sleep(sleep_time)
 
             return redirect('/')
         except Exception as e:
