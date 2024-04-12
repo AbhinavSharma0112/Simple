@@ -23,15 +23,49 @@ except Exception as e:
     print("An error occurred:", e)
 
 
+# Dictionary to store request counts for each IP address
+ip_request_counts = {}
+
+
+def update_ip_request_count(ip_address):
+    current_time = time.time()
+    if ip_address in ip_request_counts:
+        count, timestamp = ip_request_counts[ip_address]
+        if current_time - timestamp > 1800:  # Reset count if more than 1 hour has passed
+            ip_request_counts[ip_address] = (1, current_time)
+        else:
+            ip_request_counts[ip_address] = (count + 1, timestamp)
+    else:
+        ip_request_counts[ip_address] = (1, current_time)
+
+    # Check if the IP has exceeded the limit (e.g., 100 requests per hour)
+    if ip_request_counts[ip_address][0] > 2:
+        return False
+    else:
+        return True
+
+
+
 def check_rate_limit(response):
-    remaining = int(response.headers.get('X-RateLimit-Remaining', 0))
-    reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
-    return remaining, reset_time
+    if 'headers' in response:
+        remaining = int(response['headers'].get('X-RateLimit-Remaining', 0))
+        reset_time = int(response['headers'].get('X-RateLimit-Reset', 0))
+        return remaining, reset_time
+    else:
+        # If response does not contain headers, return default values
+        return 0, 0
+
+
 
 
 @app.route('/add', methods=['POST'])
 def get_user_input():
     if request.method == "POST":
+        ip_address = request.remote_addr
+        # Check if the IP has exceeded the request limit
+        if not update_ip_request_count(ip_address):
+            return "Error: IP address has exceeded request limit"
+
         company_name = request.form.get('company_name')
         repo_name = request.form.get('repo_name')  # Get the repository name from the form
         name = request.form.get('name')
@@ -121,7 +155,7 @@ def get_user_input():
             remaining, reset_time = check_rate_limit(response)
             if remaining == 0:
                 # Rate limit exceeded, wait until reset_time
-                sleep_time = reset_time - time.time() + 10  # Add 10 seconds buffer
+                sleep_time = max(reset_time - time.time() + 10, 0)  # Ensure sleep_time is non-negative
                 time.sleep(sleep_time)
 
             return redirect('/')
