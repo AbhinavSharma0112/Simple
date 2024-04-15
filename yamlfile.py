@@ -1,12 +1,13 @@
 import os
 import time
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session, url_for
 from github import Github
 import subprocess
 import urllib.parse
 import oyaml as yaml
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Secret key for session
 
 github_token = os.environ.get("GITHUB_TOKEN")
 github_username = os.environ.get("GITHUB_USERNAME")
@@ -31,7 +32,7 @@ def update_ip_request_count(ip_address):
     current_time = time.time()
     if ip_address in ip_request_counts:
         count, timestamp = ip_request_counts[ip_address]
-        if current_time - timestamp > 1800:  # Reset count if more than 1 hour has passed
+        if current_time - timestamp > 3600:  # Reset count if more than 1 hour has passed
             ip_request_counts[ip_address] = (1, current_time)
         else:
             ip_request_counts[ip_address] = (count + 1, timestamp)
@@ -39,11 +40,10 @@ def update_ip_request_count(ip_address):
         ip_request_counts[ip_address] = (1, current_time)
 
     # Check if the IP has exceeded the limit (e.g., 100 requests per hour)
-    if ip_request_counts[ip_address][0] > 2:
+    if ip_request_counts[ip_address][0] > 10:
         return False
     else:
         return True
-
 
 
 def check_rate_limit(response):
@@ -54,8 +54,6 @@ def check_rate_limit(response):
     else:
         # If response does not contain headers, return default values
         return 0, 0
-
-
 
 
 @app.route('/add', methods=['POST'])
@@ -167,7 +165,20 @@ def get_user_input():
 
 @app.route('/')
 def hello_world():
+    if 'authenticated' not in session:
+        # If user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
     return render_template("newindex.html", github_username=github_username)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Add your authentication logic here...
+        # For example, if username and password are correct:
+        session['authenticated'] = True  # Set session variable to indicate authentication
+        return redirect('/')  # Redirect to the deployment configuration form
+    return render_template('Auth.html')
 
 
 if __name__ == "__main__":
