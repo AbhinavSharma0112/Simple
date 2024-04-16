@@ -26,22 +26,30 @@
             border: 1px solid #ced4da;
         }
         .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
             border-radius: 4px;
             padding: 10px 20px;
             font-size: 16px;
         }
+        .btn-login {
+            background-color: #007bff;
+            border-color: #007bff;
+            width: calc(50% - 5px); /* Adjust for margin between buttons */
+            margin-right: 10px; /* Add some space between buttons */
+        }
+        .btn-signup {
+            background-color: #28a745;
+            border-color: #28a745;
+            width: calc(50% - 5px); /* Adjust for margin between buttons */
+        }
         .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="text-center mb-4">Authentication</h1>
-        <form action="/login" method="post">
+        <form action="/login" method="post" class="mb-3">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" name="username" class="form-control" id="username" placeholder="Enter your username" required>
@@ -50,7 +58,10 @@
                 <label for="password" class="form-label">Password</label>
                 <input type="password" name="password" class="form-control" id="password" placeholder="Enter your password" required>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Login</button>
+            <div class="d-grid gap-2 d-md-flex justify-content-between">
+                <button type="submit" class="btn btn-primary btn-login">Login</button>
+                <button type="button" onclick="window.location.href='/signup'" class="btn btn-primary btn-signup">Sign Up</button>
+            </div>
         </form>
     </div>
 </body>
