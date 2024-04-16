@@ -52,6 +52,11 @@
         .btn:hover {
             background-color: #0056b3;
         }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +76,9 @@
                 <input type="email" name="email" class="form-control" id="email" placeholder="Enter your email" required>
             </div>
             <button type="submit" class="btn">Sign Up</button>
+            {% if error %}
+            <p class="error-message">{{ error }}</p>
+            {% endif %}
         </form>
     </div>
 </body>

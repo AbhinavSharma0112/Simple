@@ -49,6 +49,11 @@
 <body>
     <div class="container">
         <h1 class="text-center mb-4">Authentication</h1>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
         <form action="/login" method="post" class="mb-3">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>

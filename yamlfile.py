@@ -190,7 +190,8 @@ def login():
             session['username'] = username  # Set session variable to indicate authentication
             return redirect('/')  # Redirect to the homepage after successful login
         else:
-            return "Invalid username or password. Please try again."
+            error_message = 'Invalid username or password. Please try again.'
+            return render_template('login.html', error=error_message)
 
     return render_template('login.html')
 
@@ -204,7 +205,8 @@ def signup():
 
         # Check if the username already exists
         if users_collection.find_one({'username': username}):
-            return "Username already exists. Please choose a different username."
+            error_message = 'Username already exists. Please choose a different username.'
+            return render_template('signup.html', error=error_message)
 
         # Hash the password before storing it
         hashed_password = generate_password_hash(password)
@@ -216,12 +218,6 @@ def signup():
         return redirect(url_for('login'))  # Redirect to login page after successful signup
 
     return render_template('signup.html')
-
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)  # Remove username from session
-    return redirect(url_for('login'))  # Redirect to login page after logout
 
 
 if __name__ == "__main__":
