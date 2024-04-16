@@ -5,9 +5,16 @@ from github import Github
 import subprocess
 import urllib.parse
 import oyaml as yaml
+from pymongo import MongoClient
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Secret key for session
+
+# MongoDB connection
+mongo_client = MongoClient('mongodb://localhost:27017/')
+db = mongo_client['UserAuth']
+users_collection = db['Users']
 
 github_token = os.environ.get("GITHUB_TOKEN")
 github_username = os.environ.get("GITHUB_USERNAME")
@@ -22,7 +29,6 @@ try:
 
 except Exception as e:
     print("An error occurred:", e)
-
 
 # Dictionary to store request counts for each IP address
 ip_request_counts = {}
@@ -165,8 +171,8 @@ def get_user_input():
 
 @app.route('/')
 def hello_world():
-    if 'authenticated' not in session:
-        # If user is not authenticated, redirect to login page
+    if 'username' not in session:
+        # If user is not logged in, redirect to login page
         return redirect(url_for('login'))
     return render_template("newindex.html", github_username=github_username)
 
@@ -174,11 +180,48 @@ def hello_world():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Add your authentication logic here...
-        # For example, if username and password are correct:
-        session['authenticated'] = True  # Set session variable to indicate authentication
-        return redirect('/')  # Redirect to the deployment configuration form
-    return render_template('Auth.html')
+        # Retrieve form data
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Check if the username exists in the database
+        user = users_collection.find_one({'username': username})
+        if user and check_password_hash(user['password'], password):
+            session['username'] = username  # Set session variable to indicate authentication
+            return redirect('/')  # Redirect to the homepage after successful login
+        else:
+            return "Invalid username or password. Please try again."
+
+    return render_template('login.html')
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        # Retrieve form data
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Check if the username already exists
+        if users_collection.find_one({'username': username}):
+            return "Username already exists. Please choose a different username."
+
+        # Hash the password before storing it
+        hashed_password = generate_password_hash(password)
+
+        # Insert new user data into MongoDB
+        user_data = {'username': username, 'password': hashed_password}
+        users_collection.insert_one(user_data)
+
+        return redirect(url_for('login'))  # Redirect to login page after successful signup
+
+    return render_template('signup.html')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)  # Remove username from session
+    return redirect(url_for('login'))  # Redirect to login page after logout
 
 
 if __name__ == "__main__":
