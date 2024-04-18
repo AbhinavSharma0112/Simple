@@ -8,7 +8,7 @@ import oyaml as yaml
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__) 
+app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Secret key for session
 
 # MongoDB connection
