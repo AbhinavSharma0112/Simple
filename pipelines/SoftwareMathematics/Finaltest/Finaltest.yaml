@@ -1,0 +1,37 @@
+!!python/object/apply:collections.OrderedDict
+- - - name
+    - Finaltest
+  - - repo_url
+    - https://euwfbeiw.git
+  - - enabled
+    - 'on'
+  - - job_type
+    - value3
+  - - run_command
+    - ''
+  - - src_path
+    - ''
+  - - application_port
+    - ''
+  - - deploy_port
+    - ''
+  - - ssh_port_prod
+    - ''
+  - - ssh_port_dev
+    - ''
+  - - build_command
+    - ''
+  - - pvt_deploy_servers_dev
+    - ''
+  - - deploy_servers_dev
+    - ''
+  - - pvt_deploy_servers_prod
+    - ''
+  - - deploy_servers_prod
+    - ''
+  - - deploy_env_prod
+    - ''
+  - - deploy_env_dev
+    - ''
+  - - deploy_env
+    - ''
